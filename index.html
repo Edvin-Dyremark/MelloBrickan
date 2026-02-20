@@ -240,14 +240,6 @@ body {
   100% { box-shadow: inset 0 0 20px var(--gold), 0 0 20px var(--gold); }
 }
 
-/* FREE cell */
-.cell.free {
-  font-weight: 900;
-  font-size: clamp(0.8rem, 3vw, 1.4rem);
-  color: var(--gold);
-  background: var(--purple-light);
-}
-
 /* === CONFETTI CANVAS === */
 #confetti-canvas {
   position: fixed;
@@ -308,10 +300,6 @@ body {
     border: 1px solid #000;
     font-size: 10pt;
   }
-  .cell.free {
-    background: #eee;
-    color: #000;
-  }
   .cell .reroll-btn { display: none !important; }
   .cell .stamp {
     background: rgba(0,0,0,0.1);
@@ -346,88 +334,8 @@ body {
 
 <canvas id="confetti-canvas"></canvas>
 
+<script src="events.js"></script>
 <script>
-const EVENT_POOL = [
-  // Performance
-  "Tonartsbyte!",
-  "Fläktmaskin i håret",
-  "Pyroteknik på scen",
-  "Artist utan skor",
-  "Kostymavslöjande",
-  "Backup-dansare",
-  "Talat brygga",
-  "Dimmaskin overdose",
-  "Operasång i pop-låt",
-  "Gitarrsolo",
-  "Falsett-moment",
-  "Sångare i trappa",
-  "Koreografi i formation",
-  "Key change final chorus",
-  "Dramatisk paus i sången",
-
-  // Stage / Production
-  "LED-skärmar gör för mycket",
-  "Konfettikanon!",
-  "Tekniskt strul",
-  "Kameran på fel person",
-  "Artist i sele/harness",
-  "Drönarbild",
-  "Lasershow",
-  "Rökmaskin + spotlight",
-  "Catwalk-moment",
-  "Genomskinlig flygel",
-  "Snurrande scen",
-  "Glitterregn",
-
-  // Hosts
-  "Dåligt skämt av programledare",
-  "Pinsam green room-intervju",
-  "Programledarbyte av outfit",
-  "ABBA nämns",
-  "Programledaren dansar",
-  "Programledaren sjunger",
-  "\"Vilken energi!\"",
-  "Melodifestivalen-recap montage",
-  "Hälsning till Eurovision",
-
-  // Audience
-  "Stående ovation för ballad",
-  "Guldiga glitterhatter",
-  "Publikens armvåg",
-  "Crowd selfie-moment",
-  "Publikhav med mobillampor",
-  "Fansen sjunger med",
-  "Barn i publiken visas",
-  "Kändis i publiken",
-
-  // Voting / Results
-  "Dramatisk 12-poängspaus",
-  "Jury vs tittare oense",
-  "Överraskande vinnare",
-  "Andrachans-drama",
-  "Poängställning jämnt",
-  "\"Vi går till omröstning!\"",
-  "Tårar vid resultat",
-  "Favoritens kross",
-
-  // Mello-specific
-  "Carola-referens",
-  "Schlagerveteran hyllas",
-  "Thomas G:son skrev den",
-  "Veteran-artist tillbaka",
-  "\"Mello-diva\"-energi",
-  "Sverige röstar på grannland",
-  "Schlager-medley",
-  "Internationell gäst-artist",
-  "Artisten tackar mamma",
-  "Tårfylld intervju backstage",
-  "Debutant med scenskräck",
-  "\"Det här är min dröm\"",
-  "Duett med ögonkontakt",
-  "Artisten pekar mot publiken",
-  "Kärlek till Globen/Friends"
-];
-
 // --- State ---
 const state = {
   squares: [],    // [{text, marked}]
@@ -470,16 +378,8 @@ function shuffle(arr) {
 // --- Card Generation ---
 function generateCard() {
   const shuffled = shuffle(EVENT_POOL);
-  const picked = shuffled.slice(0, 24);
-  state.squares = [];
-  for (let i = 0; i < 25; i++) {
-    if (i === 12) {
-      state.squares.push({ text: 'FREE', marked: true });
-    } else {
-      const idx = i < 12 ? i : i - 1;
-      state.squares.push({ text: picked[idx], marked: false });
-    }
-  }
+  const picked = shuffled.slice(0, 25);
+  state.squares = picked.map(text => ({ text, marked: false }));
   state.hasBingo = false;
   state.bingoLines = [];
   renderCard();
@@ -490,7 +390,7 @@ function renderCard() {
   cardEl.innerHTML = '';
   state.squares.forEach((sq, i) => {
     const cell = document.createElement('div');
-    cell.className = 'cell' + (sq.marked ? ' marked' : '') + (i === 12 ? ' free' : '');
+    cell.className = 'cell' + (sq.marked ? ' marked' : '');
     cell.dataset.index = i;
 
     const textSpan = document.createElement('span');
@@ -502,14 +402,12 @@ function renderCard() {
     stamp.className = 'stamp';
     cell.appendChild(stamp);
 
-    if (i !== 12) {
-      const rerollBtn = document.createElement('button');
-      rerollBtn.className = 'reroll-btn';
-      rerollBtn.textContent = '\u21BB';
-      rerollBtn.title = 'Byt ruta';
-      rerollBtn.dataset.reroll = i;
-      cell.appendChild(rerollBtn);
-    }
+    const rerollBtn = document.createElement('button');
+    rerollBtn.className = 'reroll-btn';
+    rerollBtn.textContent = '\u21BB';
+    rerollBtn.title = 'Byt ruta';
+    rerollBtn.dataset.reroll = i;
+    cell.appendChild(rerollBtn);
 
     cardEl.appendChild(cell);
   });
@@ -518,7 +416,6 @@ function renderCard() {
 
 // --- Mark / Unmark ---
 function toggleMark(index) {
-  if (index === 12) return; // FREE is always marked
   const sq = state.squares[index];
   sq.marked = !sq.marked;
   const cell = cardEl.children[index];
@@ -532,7 +429,6 @@ function toggleMark(index) {
 
 // --- Reroll ---
 function rerollSquare(index) {
-  if (index === 12) return;
   const currentTexts = new Set(state.squares.map(s => s.text));
   const available = EVENT_POOL.filter(e => !currentTexts.has(e));
   if (available.length === 0) return;
@@ -579,7 +475,6 @@ cardEl.addEventListener('touchstart', (e) => {
   const cell = e.target.closest('.cell');
   if (!cell) return;
   const index = parseInt(cell.dataset.index);
-  if (index === 12) return;
   longPressTriggered = false;
   longPressTimer = setTimeout(() => {
     longPressTriggered = true;
@@ -715,9 +610,7 @@ document.getElementById('btn-new').addEventListener('click', () => {
 });
 
 document.getElementById('btn-reset').addEventListener('click', () => {
-  state.squares.forEach((sq, i) => {
-    if (i !== 12) sq.marked = false;
-  });
+  state.squares.forEach(sq => { sq.marked = false; });
   state.hasBingo = false;
   state.bingoLines = [];
   bannerEl.classList.remove('visible');

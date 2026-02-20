@@ -41,6 +41,16 @@ const EVENT_POOL = [
   "Någon gör hjärta-tecknet med händerna",
   "Ett nummer där du undrar: \"Varför händer det här?\"",
   "Uppenbart AI",
+  "Någon har handskar",
+  "Solglasögon inomhus",
+  "Bar överkropp",
+  "Någon ligger ner och sjunger",
+  "Matchande outfits",
+  "Dansare halkar",
+  "Schlager-diva",
+  "Artist som \"gör comeback\" men ingen minns från vad",
+  "Outfitbyte",
+  "Glitterkavaj",
 
   // Stage / Production
   "LED-skärmar gör för mycket",
@@ -79,6 +89,14 @@ const EVENT_POOL = [
   "Programledaren skämtar om åldern",
   "\"Sverige, det är dags att rösta!\"",
   "Programledaren nämner sin egen karriär",
+  "Konstigt skratt i green room-intervju",
+  "\"Det här kan gå hela vägen till Eurovision!\"",
+  "Kommentator som inte kan uttala artistnamnet",
+  "Green room är awkward tyst i 3 sek",
+  "Programledaren skrattar ensam åt sitt skämt",
+  "Programledaren säger \"Vilken kväll!\"",
+  "Programledaren börjar sjunga",
+  "Referens till tidigare Mello-år",
 
   // Audience
   "Stående ovation för ballad",
@@ -97,6 +115,7 @@ const EVENT_POOL = [
   "Publiken booar",
   "Publikskylt: \"We love you [artist]!\"",
   "\"We love you!\" från scenen",
+  "Artistens mamma gråter i publiken",
 
   // Voting / Results
   "Dramatisk 12-poängspaus",
@@ -112,6 +131,7 @@ const EVENT_POOL = [
   "Resultaträkning tar evigheter",
   "Poängräkning som tar 1000 år",
   "Skeptisk blick från jury",
+  "Skämt om hur lång röstningen är",
 
   // Mello-specific
   "Carola-referens",
@@ -153,4 +173,9 @@ const EVENT_POOL = [
   "Extremt långt namn på ett land eller artist",
   "Ett språk du inte kan placera",
   "En duo där en sjunger allt och den andre bara står och ler",
+  "Någon säger \"Nu kör vi!\"",
+  "Nu kör vi",
+  "Någon tackar \"hela svenska folket\"",
+  "Någon ropar \"Är ni med oss?!\"",
+  "Texten nämner \"heart\" minst tre gånger",
 ];

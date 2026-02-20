@@ -15,6 +15,11 @@ const EVENT_POOL = [
   "Koreografi i formation",
   "Key change final chorus",
   "Dramatisk paus i sången",
+  "Helt a cappella-moment",
+  "Rap-vers i schlager",
+  "Viskning i mikrofonen",
+  "Artisten skriker sista tonen",
+  "Dansbreak utan sång",
 
   // Stage / Production
   "LED-skärmar gör för mycket",
@@ -29,6 +34,11 @@ const EVENT_POOL = [
   "Genomskinlig flygel",
   "Snurrande scen",
   "Glitterregn",
+  "Eldar på scenen",
+  "Vattenfontän/regn på scen",
+  "Onödigt stor rekvisita",
+  "Helt mörk scen i 3 sek",
+  "Scenen byter färg 10+ ggr",
 
   // Hosts
   "Dåligt skämt av programledare",
@@ -40,6 +50,9 @@ const EVENT_POOL = [
   "\"Vilken energi!\"",
   "Melodifestivalen-recap montage",
   "Hälsning till Eurovision",
+  "Programledaren skämtar om åldern",
+  "\"Sverige, det är dags att rösta!\"",
+  "Programledaren nämner sin egen karriär",
 
   // Audience
   "Stående ovation för ballad",
@@ -50,6 +63,10 @@ const EVENT_POOL = [
   "Fansen sjunger med",
   "Barn i publiken visas",
   "Kändis i publiken",
+  "Publikmedlem gråter",
+  "Cosplay/utklädnad i publiken",
+  "Flaggor i publiken",
+  "Publiken booar",
 
   // Voting / Results
   "Dramatisk 12-poängspaus",
@@ -60,6 +77,9 @@ const EVENT_POOL = [
   "\"Vi går till omröstning!\"",
   "Tårar vid resultat",
   "Favoritens kross",
+  "Noll poäng från en jury",
+  "Sista bidraget vinner",
+  "Resultaträkning tar evigheter",
 
   // Mello-specific
   "Carola-referens",
@@ -77,4 +97,21 @@ const EVENT_POOL = [
   "Duett med ögonkontakt",
   "Artisten pekar mot publiken",
   "Kärlek till Globen/Friends",
+
+  // Clichés & Vibes
+  "Låttext om \"vi mot världen\"",
+  "Kärlekslåt med dansgolv-beat",
+  "Ballad med stråkar",
+  "Engelska låten som borde varit svenska",
+  "Artisten tackar Gud",
+  "\"Tack Sverige!\" i mikrofonen",
+  "Onödigt lång outro",
+  "Artisten vinkar med båda händerna",
+  "Slow-motion kameraåkning",
+  "Dramatisk violinsolo",
+  "Någon jämförs med Loreen",
+  "Tävlande artist i publiken sjunger med",
+  "Kommentator säger \"stark insats\"",
+  "Låten slutar med ett skrik",
+  "Artist gör hjärta med händerna",
 ];

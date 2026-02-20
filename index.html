@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MelloBrickan</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --purple-dark: #1a0a2e;
+  --purple-mid: #2d1854;
+  --purple-light: #4a2080;
+  --gold: #ffd700;
+  --gold-dim: #b8960f;
+  --magenta: #ff2d8a;
+  --green-stamp: #2ecc40;
+  --cell-bg: #2d1854;
+  --cell-hover: #3a2068;
+  --card-size: min(95vw, 600px);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--purple-dark);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0 2rem;
+  overflow-x: hidden;
+}
+
+/* === HEADER === */
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.header h1 {
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), #fff5a0, var(--gold), var(--magenta));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+  text-shadow: none;
+  position: relative;
+  letter-spacing: 0.05em;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Glitter particles */
+.glitter-container {
+  position: absolute;
+  inset: -10px -20px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glitter {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.header p {
+  font-size: clamp(0.8rem, 3vw, 1rem);
+  color: #c0a0e0;
+  margin-top: 0.25rem;
+}
+
+/* === CONTROLS === */
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.controls button {
+  padding: 0.5rem 1.2rem;
+  border: 2px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controls button:hover {
+  background: var(--gold);
+  color: var(--purple-dark);
+}
+
+.controls button:active {
+  transform: scale(0.95);
+}
+
+/* === BINGO CARD === */
+.card-wrapper {
+  width: var(--card-size);
+  position: relative;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  overflow: hidden;
+  gap: 2px;
+  background: var(--gold-dim);
+}
+
+.cell {
+  background: var(--cell-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  font-size: clamp(0.5rem, 1.8vw, 0.85rem);
+  line-height: 1.2;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s;
+  overflow: hidden;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.cell:hover {
+  background: var(--cell-hover);
+}
+
+.cell-text {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Reroll button */
+.cell .reroll-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.cell:hover .reroll-btn {
+  opacity: 1;
+}
+
+.cell .reroll-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* Stamp overlay */
+.cell .stamp {
+  position: absolute;
+  inset: 0;
+  background: rgba(46, 204, 64, 0.35);
+  border: 3px solid var(--green-stamp);
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+  display: none;
+}
+
+.cell.marked .stamp {
+  display: block;
+  animation: stampIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes stampIn {
+  0% { transform: scale(1.5) rotate(10deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Reroll flip */
+.cell.flipping {
+  animation: flipCell 0.4s ease-in-out;
+}
+
+@keyframes flipCell {
+  0% { transform: perspective(400px) rotateY(0deg); }
+  50% { transform: perspective(400px) rotateY(90deg); }
+  100% { transform: perspective(400px) rotateY(0deg); }
+}
+
+/* Bingo glow */
+.cell.bingo-cell {
+  animation: bingoGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes bingoGlow {
+  0% { box-shadow: inset 0 0 8px var(--gold), 0 0 8px var(--gold); }
+  100% { box-shadow: inset 0 0 20px var(--gold), 0 0 20px var(--gold); }
+}
+
+/* FREE cell */
+.cell.free {
+  font-weight: 900;
+  font-size: clamp(0.8rem, 3vw, 1.4rem);
+  color: var(--gold);
+  background: var(--purple-light);
+}
+
+/* === CONFETTI CANVAS === */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* === BINGO BANNER === */
+.bingo-banner {
+  display: none;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  animation: pulseBanner 0.8s ease-in-out infinite alternate;
+}
+
+.bingo-banner.visible {
+  display: block;
+}
+
+@keyframes pulseBanner {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* === PRINT === */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    padding: 0;
+  }
+  .header h1 {
+    background: none;
+    -webkit-text-fill-color: #000;
+    color: #000;
+    font-size: 2rem;
+  }
+  .header p, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
+    display: none !important;
+  }
+  .card-wrapper {
+    --card-size: 90vw;
+  }
+  .card {
+    border-color: #000;
+    background: #666;
+  }
+  .cell {
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    font-size: 10pt;
+  }
+  .cell.free {
+    background: #eee;
+    color: #000;
+  }
+  .cell .reroll-btn { display: none !important; }
+  .cell .stamp {
+    background: rgba(0,0,0,0.1);
+    border-color: #000;
+  }
+  .cell.bingo-cell {
+    animation: none;
+    box-shadow: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="glitter-container" id="glitter-container"></div>
+  <h1>MelloBrickan</h1>
+  <p>Melodifestivalen Bingo</p>
+</div>
+
+<div class="controls">
+  <button id="btn-new">Nytt kort</button>
+  <button id="btn-reset">Nollstall</button>
+  <button id="btn-print">Skriv ut</button>
+</div>
+
+<div class="card-wrapper">
+  <div class="card" id="card"></div>
+</div>
+
+<div class="bingo-banner" id="bingo-banner">BINGO!</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+const EVENT_POOL = [
+  // Performance
+  "Tonartsbyte!",
+  "Fläktmaskin i håret",
+  "Pyroteknik på scen",
+  "Artist utan skor",
+  "Kostymavslöjande",
+  "Backup-dansare",
+  "Talat brygga",
+  "Dimmaskin overdose",
+  "Operasång i pop-låt",
+  "Gitarrsolo",
+  "Falsett-moment",
+  "Sångare i trappa",
+  "Koreografi i formation",
+  "Key change final chorus",
+  "Dramatisk paus i sången",
+
+  // Stage / Production
+  "LED-skärmar gör för mycket",
+  "Konfettikanon!",
+  "Tekniskt strul",
+  "Kameran på fel person",
+  "Artist i sele/harness",
+  "Drönarbild",
+  "Lasershow",
+  "Rökmaskin + spotlight",
+  "Catwalk-moment",
+  "Genomskinlig flygel",
+  "Snurrande scen",
+  "Glitterregn",
+
+  // Hosts
+  "Dåligt skämt av programledare",
+  "Pinsam green room-intervju",
+  "Programledarbyte av outfit",
+  "ABBA nämns",
+  "Programledaren dansar",
+  "Programledaren sjunger",
+  "\"Vilken energi!\"",
+  "Melodifestivalen-recap montage",
+  "Hälsning till Eurovision",
+
+  // Audience
+  "Stående ovation för ballad",
+  "Guldiga glitterhatter",
+  "Publikens armvåg",
+  "Crowd selfie-moment",
+  "Publikhav med mobillampor",
+  "Fansen sjunger med",
+  "Barn i publiken visas",
+  "Kändis i publiken",
+
+  // Voting / Results
+  "Dramatisk 12-poängspaus",
+  "Jury vs tittare oense",
+  "Överraskande vinnare",
+  "Andrachans-drama",
+  "Poängställning jämnt",
+  "\"Vi går till omröstning!\"",
+  "Tårar vid resultat",
+  "Favoritens kross",
+
+  // Mello-specific
+  "Carola-referens",
+  "Schlagerveteran hyllas",
+  "Thomas G:son skrev den",
+  "Veteran-artist tillbaka",
+  "\"Mello-diva\"-energi",
+  "Sverige röstar på grannland",
+  "Schlager-medley",
+  "Internationell gäst-artist",
+  "Artisten tackar mamma",
+  "Tårfylld intervju backstage",
+  "Debutant med scenskräck",
+  "\"Det här är min dröm\"",
+  "Duett med ögonkontakt",
+  "Artisten pekar mot publiken",
+  "Kärlek till Globen/Friends"
+];
+
+// --- State ---
+const state = {
+  squares: [],    // [{text, marked}]
+  hasBingo: false,
+  bingoLines: []  // indices of winning lines
+};
+
+// --- DOM ---
+const cardEl = document.getElementById('card');
+const bannerEl = document.getElementById('bingo-banner');
+const canvasEl = document.getElementById('confetti-canvas');
+const ctx = canvasEl.getContext('2d');
+
+// --- Glitter particles ---
+(function initGlitter() {
+  const container = document.getElementById('glitter-container');
+  for (let i = 0; i < 20; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'glitter';
+    dot.style.left = Math.random() * 100 + '%';
+    dot.style.top = Math.random() * 100 + '%';
+    dot.style.animationDelay = (Math.random() * 3) + 's';
+    dot.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    const hue = Math.random() > 0.5 ? '45' : '320';
+    dot.style.background = `hsl(${hue}, 100%, ${60 + Math.random() * 30}%)`;
+    container.appendChild(dot);
+  }
+})();
+
+// --- Utility ---
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// --- Card Generation ---
+function generateCard() {
+  const shuffled = shuffle(EVENT_POOL);
+  const picked = shuffled.slice(0, 24);
+  state.squares = [];
+  for (let i = 0; i < 25; i++) {
+    if (i === 12) {
+      state.squares.push({ text: 'FREE', marked: true });
+    } else {
+      const idx = i < 12 ? i : i - 1;
+      state.squares.push({ text: picked[idx], marked: false });
+    }
+  }
+  state.hasBingo = false;
+  state.bingoLines = [];
+  renderCard();
+  bannerEl.classList.remove('visible');
+}
+
+function renderCard() {
+  cardEl.innerHTML = '';
+  state.squares.forEach((sq, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (sq.marked ? ' marked' : '') + (i === 12 ? ' free' : '');
+    cell.dataset.index = i;
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'cell-text';
+    textSpan.textContent = sq.text;
+    cell.appendChild(textSpan);
+
+    const stamp = document.createElement('div');
+    stamp.className = 'stamp';
+    cell.appendChild(stamp);
+
+    if (i !== 12) {
+      const rerollBtn = document.createElement('button');
+      rerollBtn.className = 'reroll-btn';
+      rerollBtn.textContent = '\u21BB';
+      rerollBtn.title = 'Byt ruta';
+      rerollBtn.dataset.reroll = i;
+      cell.appendChild(rerollBtn);
+    }
+
+    cardEl.appendChild(cell);
+  });
+  updateBingoHighlight();
+}
+
+// --- Mark / Unmark ---
+function toggleMark(index) {
+  if (index === 12) return; // FREE is always marked
+  const sq = state.squares[index];
+  sq.marked = !sq.marked;
+  const cell = cardEl.children[index];
+  if (sq.marked) {
+    cell.classList.add('marked');
+  } else {
+    cell.classList.remove('marked');
+  }
+  checkBingo();
+}
+
+// --- Reroll ---
+function rerollSquare(index) {
+  if (index === 12) return;
+  const currentTexts = new Set(state.squares.map(s => s.text));
+  const available = EVENT_POOL.filter(e => !currentTexts.has(e));
+  if (available.length === 0) return;
+  const newText = available[Math.floor(Math.random() * available.length)];
+  state.squares[index].text = newText;
+  state.squares[index].marked = false;
+
+  const cell = cardEl.children[index];
+  cell.classList.add('flipping');
+  cell.classList.remove('marked', 'bingo-cell');
+
+  setTimeout(() => {
+    cell.querySelector('.cell-text').textContent = newText;
+  }, 200);
+
+  setTimeout(() => {
+    cell.classList.remove('flipping');
+    checkBingo();
+  }, 400);
+}
+
+// --- Event Delegation ---
+let longPressTimer = null;
+let longPressTriggered = false;
+
+cardEl.addEventListener('click', (e) => {
+  if (longPressTriggered) {
+    longPressTriggered = false;
+    return;
+  }
+  // Reroll button clicked
+  if (e.target.dataset.reroll !== undefined) {
+    e.stopPropagation();
+    rerollSquare(parseInt(e.target.dataset.reroll));
+    return;
+  }
+  const cell = e.target.closest('.cell');
+  if (!cell) return;
+  toggleMark(parseInt(cell.dataset.index));
+});
+
+// Long-press for mobile reroll
+cardEl.addEventListener('touchstart', (e) => {
+  const cell = e.target.closest('.cell');
+  if (!cell) return;
+  const index = parseInt(cell.dataset.index);
+  if (index === 12) return;
+  longPressTriggered = false;
+  longPressTimer = setTimeout(() => {
+    longPressTriggered = true;
+    rerollSquare(index);
+  }, 500);
+}, { passive: true });
+
+cardEl.addEventListener('touchend', () => {
+  clearTimeout(longPressTimer);
+});
+
+cardEl.addEventListener('touchmove', () => {
+  clearTimeout(longPressTimer);
+});
+
+// Prevent context menu on long-press
+cardEl.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});
+
+// --- Bingo Detection ---
+const LINES = [
+  // Rows
+  [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
+  // Columns
+  [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
+  // Diagonals
+  [0,6,12,18,24], [4,8,12,16,20]
+];
+
+function checkBingo() {
+  const winningCells = new Set();
+  const winLines = [];
+  LINES.forEach((line, li) => {
+    if (line.every(i => state.squares[i].marked)) {
+      winLines.push(li);
+      line.forEach(i => winningCells.add(i));
+    }
+  });
+
+  const hadBingo = state.hasBingo;
+  state.hasBingo = winLines.length > 0;
+  state.bingoLines = winLines;
+
+  // Update cell highlights
+  for (let i = 0; i < 25; i++) {
+    const cell = cardEl.children[i];
+    if (winningCells.has(i)) {
+      cell.classList.add('bingo-cell');
+    } else {
+      cell.classList.remove('bingo-cell');
+    }
+  }
+
+  // Banner
+  if (state.hasBingo) {
+    bannerEl.classList.add('visible');
+  } else {
+    bannerEl.classList.remove('visible');
+  }
+
+  // Fire confetti on first bingo
+  if (!hadBingo && state.hasBingo) {
+    fireConfetti();
+  }
+}
+
+function updateBingoHighlight() {
+  checkBingo();
+}
+
+// --- Confetti ---
+function fireConfetti() {
+  canvasEl.width = window.innerWidth;
+  canvasEl.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#ffd700', '#ff2d8a', '#2ecc40', '#00bfff', '#ff6600', '#c060ff'];
+
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: canvasEl.width * 0.5 + (Math.random() - 0.5) * 200,
+      y: canvasEl.height * 0.5,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -(Math.random() * 12 + 4),
+      w: 6 + Math.random() * 6,
+      h: 4 + Math.random() * 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rv: (Math.random() - 0.5) * 12,
+      gravity: 0.15 + Math.random() * 0.1,
+      opacity: 1
+    });
+  }
+
+  let frame = 0;
+  function animate() {
+    frame++;
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.vy += p.gravity;
+      p.y += p.vy;
+      p.rotation += p.rv;
+      if (frame > 60) p.opacity -= 0.015;
+
+      if (p.opacity > 0 && p.y < canvasEl.height + 50) {
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+    });
+
+    if (alive) {
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+// --- Control Buttons ---
+document.getElementById('btn-new').addEventListener('click', () => {
+  generateCard();
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  state.squares.forEach((sq, i) => {
+    if (i !== 12) sq.marked = false;
+  });
+  state.hasBingo = false;
+  state.bingoLines = [];
+  bannerEl.classList.remove('visible');
+  renderCard();
+});
+
+document.getElementById('btn-print').addEventListener('click', () => {
+  window.print();
+});
+
+// --- Init ---
+generateCard();
+</script>
+</body>
+</html>

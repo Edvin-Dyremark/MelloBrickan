@@ -80,49 +80,36 @@ body {
   50% { opacity: 1; transform: scale(1); }
 }
 
-.header p {
-  font-size: clamp(0.8rem, 3vw, 1rem);
-  color: #c0a0e0;
-  margin-top: 0.25rem;
-}
-
 /* === MODE SELECTOR === */
 .mode-selector {
   display: flex;
-  gap: 0;
-  margin-bottom: 1rem;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
   justify-content: center;
 }
 
 .mode-selector button {
-  padding: 0.5rem 1.2rem;
-  border: 2px solid var(--gold);
-  background: transparent;
-  color: var(--gold);
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
-  font-weight: 700;
+  padding: 0.3rem 1rem;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.05em;
-}
-
-.mode-selector button:first-child {
-  border-radius: 6px 0 0 6px;
-  border-right: 1px solid var(--gold);
-}
-
-.mode-selector button:last-child {
-  border-radius: 0 6px 6px 0;
-  border-left: 1px solid var(--gold);
+  transition: all 0.25s;
+  letter-spacing: 0.03em;
 }
 
 .mode-selector button.active {
-  background: var(--gold);
+  background: linear-gradient(135deg, var(--gold), #ffe066);
   color: var(--purple-dark);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
 }
 
 .mode-selector button:hover:not(.active) {
-  background: rgba(255, 215, 0, 0.15);
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .mode-selector button:active {
@@ -327,7 +314,7 @@ body {
     color: #000;
     font-size: 2rem;
   }
-  .header p, .mode-selector, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
+  .mode-selector, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
     display: none !important;
   }
   .card-wrapper {
@@ -360,12 +347,10 @@ body {
 <div class="header">
   <div class="glitter-container" id="glitter-container"></div>
   <h1>MelloBrickan</h1>
-  <p>Melodifestivalen Bingo</p>
-</div>
-
-<div class="mode-selector">
-  <button id="btn-mode-mello" class="active">Melodifestivalen</button>
-  <button id="btn-mode-esc">Eurovision</button>
+  <div class="mode-selector">
+    <button id="btn-mode-mello" class="active">Mello</button>
+    <button id="btn-mode-esc">Eurovision</button>
+  </div>
 </div>
 
 <div class="controls">
@@ -414,7 +399,6 @@ const ctx = canvasEl.getContext('2d');
   }
 })();
 
-const subtitleEl = document.querySelector('.header p');
 const btnMello = document.getElementById('btn-mode-mello');
 const btnEsc = document.getElementById('btn-mode-esc');
 
@@ -427,7 +411,6 @@ function setMode(mode) {
   state.mode = mode;
   btnMello.classList.toggle('active', mode === 'melodifestivalen');
   btnEsc.classList.toggle('active', mode === 'eurovision');
-  subtitleEl.textContent = mode === 'melodifestivalen' ? 'Melodifestivalen Bingo' : 'Eurovision Bingo';
   generateCard();
 }
 

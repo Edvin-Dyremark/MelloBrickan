@@ -86,6 +86,49 @@ body {
   margin-top: 0.25rem;
 }
 
+/* === MODE SELECTOR === */
+.mode-selector {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.mode-selector button {
+  padding: 0.5rem 1.2rem;
+  border: 2px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.mode-selector button:first-child {
+  border-radius: 6px 0 0 6px;
+  border-right: 1px solid var(--gold);
+}
+
+.mode-selector button:last-child {
+  border-radius: 0 6px 6px 0;
+  border-left: 1px solid var(--gold);
+}
+
+.mode-selector button.active {
+  background: var(--gold);
+  color: var(--purple-dark);
+}
+
+.mode-selector button:hover:not(.active) {
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.mode-selector button:active {
+  transform: scale(0.95);
+}
+
 /* === CONTROLS === */
 .controls {
   display: flex;
@@ -284,7 +327,7 @@ body {
     color: #000;
     font-size: 2rem;
   }
-  .header p, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
+  .header p, .mode-selector, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
     display: none !important;
   }
   .card-wrapper {
@@ -320,6 +363,11 @@ body {
   <p>Melodifestivalen Bingo</p>
 </div>
 
+<div class="mode-selector">
+  <button id="btn-mode-mello" class="active">Melodifestivalen</button>
+  <button id="btn-mode-esc">Eurovision</button>
+</div>
+
 <div class="controls">
   <button id="btn-new">Nytt kort</button>
   <button id="btn-reset">Nollstall</button>
@@ -338,6 +386,7 @@ body {
 <script>
 // --- State ---
 const state = {
+  mode: 'melodifestivalen',
   squares: [],    // [{text, marked}]
   hasBingo: false,
   bingoLines: []  // indices of winning lines
@@ -365,6 +414,26 @@ const ctx = canvasEl.getContext('2d');
   }
 })();
 
+const subtitleEl = document.querySelector('.header p');
+const btnMello = document.getElementById('btn-mode-mello');
+const btnEsc = document.getElementById('btn-mode-esc');
+
+// --- Mode ---
+function getFilteredPool() {
+  return EVENT_POOL.filter(e => !e.exclude || !e.exclude.includes(state.mode)).map(e => e.text);
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  btnMello.classList.toggle('active', mode === 'melodifestivalen');
+  btnEsc.classList.toggle('active', mode === 'eurovision');
+  subtitleEl.textContent = mode === 'melodifestivalen' ? 'Melodifestivalen Bingo' : 'Eurovision Bingo';
+  generateCard();
+}
+
+btnMello.addEventListener('click', () => setMode('melodifestivalen'));
+btnEsc.addEventListener('click', () => setMode('eurovision'));
+
 // --- Utility ---
 function shuffle(arr) {
   const a = [...arr];
@@ -377,7 +446,8 @@ function shuffle(arr) {
 
 // --- Card Generation ---
 function generateCard() {
-  const shuffled = shuffle(EVENT_POOL);
+  const pool = getFilteredPool();
+  const shuffled = shuffle(pool);
   const picked = shuffled.slice(0, 25);
   state.squares = picked.map(text => ({ text, marked: false }));
   state.hasBingo = false;
@@ -430,7 +500,7 @@ function toggleMark(index) {
 // --- Reroll ---
 function rerollSquare(index) {
   const currentTexts = new Set(state.squares.map(s => s.text));
-  const available = EVENT_POOL.filter(e => !currentTexts.has(e));
+  const available = getFilteredPool().filter(e => !currentTexts.has(e));
   if (available.length === 0) return;
   const newText = available[Math.floor(Math.random() * available.length)];
   state.squares[index].text = newText;

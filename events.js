@@ -52,6 +52,22 @@ const EVENT_POOL = [
   { text: "Country-Låt" },
   { text: "Rock-låt" },
   { text: "Absolute Banger Låt!" },
+  { text: "Programledare byter kläder" },
+  { text: "Låt om kärlek" },
+  { text: "Oväntat gästspel av en kändis" },
+  { text: "Sexuellt Skämt" },
+  { text: "Bedövande tystnad efter programledares skämt" },
+  { text: "Stel intervju med någon i publiken" },
+  { text: "Artistist knäpptyst vid intervju" },
+  
+
+
+ 
+  
+
+  
+
+  
 
   // Stage / Production
   { text: "Konfettikanon!" },

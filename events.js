@@ -151,4 +151,5 @@ const EVENT_POOL = [
   { text: "Texten nämner \"heart\" minst tre gånger"},
   { text: "Låten heter samma sak som refrängen" },
   { text: "Artistens scennamn är ett enda ord" },
+  { text: "Flashback till gammal kändis + videoklipp " },
 ];

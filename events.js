@@ -59,15 +59,25 @@ const EVENT_POOL = [
   { text: "Bedövande tystnad efter programledares skämt" },
   { text: "Stel intervju med någon i publiken" },
   { text: "Artistist knäpptyst vid intervju" },
-  
-
-
- 
-  
-
-  
-
-  
+  { text: "Extremt långt tacktal till 'alla där hemma'"},
+  { text: "Nervöst skratt som aldrig slutar" },
+  { text:  "Programledaren avbryter för att tiden är slut" },
+  { text:" Någon säger 'vi tar det som det kommer'" },
+  { text: "Artist svarar seriöst på ett skämt" },
+  { text: "Någon äter i bakgrunden" },
+  { text: "'Det här betyder ALLT för mig'" },
+  { text: "Otydlig fråga om känslor" },
+  { text: "Programledaren sitter orimligt nära en artist" },
+  { text: "'Hur känns det?'" },   
+  { text: "Gruppmedlem ger tummen upp" },
+  { text: "'Ni där hemma…'" },    
+  { text: "'Skämt som ingen fattar'" },
+  { text: "Gruppkram" },
+  { text: "Någon tappar något" },
+  { text: "Artist justerar öronsnäcka" },
+  { text: "Kommentar om glitter/outfit" },
+  { text: "Hårfix mitt i intervju" },
+  { text: "Referens till tidigare Mello-år" },
 
   // Stage / Production
   { text: "Konfettikanon!" },

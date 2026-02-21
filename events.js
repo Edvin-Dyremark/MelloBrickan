@@ -105,7 +105,7 @@ const EVENT_POOL = [
   { text: "Programledare säger \"Stort lycka till\"" },
   { text: "Programledare säger \"spännande\"" },
   { text: "Oväntat gästspel av en kändis" },
-  { text: "Bedövande tystnad efter programledares skämt" },
+  { text: "Bedövande tystnad efter skämt" },
   { text: "Stel intervju med någon i publiken" },
   { text: "Artistist knäpptyst vid intervju" },
   { text: "Extremt långt tacktal till \"alla där hemma\"" },

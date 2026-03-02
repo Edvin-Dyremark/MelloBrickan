@@ -418,19 +418,18 @@ body {
   text-decoration: line-through;
 }
 
-.egna-tag .remove-btn {
-  background: none;
-  border: none;
-  color: inherit;
+.egna-tag {
   cursor: pointer;
-  font-size: 0.85rem;
-  line-height: 1;
-  padding: 0;
-  opacity: 0.6;
+  transition: opacity 0.15s;
 }
 
-.egna-tag .remove-btn:hover {
-  opacity: 1;
+.egna-tag:hover {
+  opacity: 0.7;
+}
+
+.egna-tag .remove-icon {
+  opacity: 0.6;
+  font-size: 0.85rem;
 }
 
 /* === PRINT === */
@@ -846,7 +845,8 @@ function renderEgnaPanel() {
   state.customEvents.forEach((text, i) => {
     const tag = document.createElement('span');
     tag.className = 'egna-tag custom';
-    tag.innerHTML = `<span>${text}</span><button class="remove-btn" data-custom="${i}">\u00d7</button>`;
+    tag.dataset.custom = i;
+    tag.innerHTML = `<span>${text}</span><span class="remove-icon">\u00d7</span>`;
     customListEl.appendChild(tag);
   });
 
@@ -857,11 +857,9 @@ function renderEgnaPanel() {
     const removed = state.removedEvents.has(e.text);
     const tag = document.createElement('span');
     tag.className = 'egna-tag builtin' + (removed ? ' removed' : '');
-    if (removed) {
-      tag.innerHTML = `<span>${e.text}</span><button class="remove-btn" data-restore="${e.text}">\u21a9</button>`;
-    } else {
-      tag.innerHTML = `<span>${e.text}</span><button class="remove-btn" data-remove="${e.text}">\u00d7</button>`;
-    }
+    tag.dataset.event = e.text;
+    tag.dataset.removed = removed ? '1' : '';
+    tag.innerHTML = `<span>${e.text}</span>`;
     eventListEl.appendChild(tag);
   });
 }
@@ -897,25 +895,23 @@ document.getElementById('egna-input').addEventListener('keydown', e => {
 
 // Remove / restore events (delegated)
 document.getElementById('egna-custom-list').addEventListener('click', e => {
-  const btn = e.target.closest('[data-custom]');
-  if (!btn) return;
-  state.customEvents.splice(parseInt(btn.dataset.custom), 1);
+  const tag = e.target.closest('.egna-tag');
+  if (!tag || tag.dataset.custom === undefined) return;
+  state.customEvents.splice(parseInt(tag.dataset.custom), 1);
   renderEgnaPanel();
   if (state.mode === 'egna') generateCard();
 });
 
 document.getElementById('egna-event-list').addEventListener('click', e => {
-  const removeBtn = e.target.closest('[data-remove]');
-  const restoreBtn = e.target.closest('[data-restore]');
-  if (removeBtn) {
-    state.removedEvents.add(removeBtn.dataset.remove);
-    renderEgnaPanel();
-    if (state.mode === 'egna') generateCard();
-  } else if (restoreBtn) {
-    state.removedEvents.delete(restoreBtn.dataset.restore);
-    renderEgnaPanel();
-    if (state.mode === 'egna') generateCard();
+  const tag = e.target.closest('.egna-tag');
+  if (!tag || !tag.dataset.event) return;
+  if (tag.dataset.removed) {
+    state.removedEvents.delete(tag.dataset.event);
+  } else {
+    state.removedEvents.add(tag.dataset.event);
   }
+  renderEgnaPanel();
+  if (state.mode === 'egna') generateCard();
 });
 
 // --- Init ---

@@ -302,6 +302,137 @@ body {
   100% { transform: scale(1.05); }
 }
 
+/* === EGNA PANEL === */
+.egna-panel {
+  display: none;
+  width: min(95vw, 600px);
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+}
+
+.egna-panel.visible {
+  display: block;
+}
+
+.egna-groups {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.egna-groups label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.egna-groups input[type="checkbox"] {
+  accent-color: var(--gold);
+}
+
+.egna-add {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.egna-add input {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.egna-add input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.egna-add button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.egna-add button:hover {
+  background: var(--gold);
+  color: var(--purple-dark);
+}
+
+.egna-custom-list,
+.egna-event-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.egna-custom-list {
+  margin-bottom: 0.4rem;
+}
+
+.egna-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  max-width: 100%;
+}
+
+.egna-tag span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.egna-tag.custom {
+  background: rgba(255, 45, 138, 0.2);
+  border: 1px solid rgba(255, 45, 138, 0.4);
+  color: #ff8ec4;
+}
+
+.egna-tag.builtin {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.egna-tag.removed {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.egna-tag .remove-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.egna-tag .remove-btn:hover {
+  opacity: 1;
+}
+
 /* === PRINT === */
 @media print {
   body {
@@ -315,7 +446,7 @@ body {
     color: #000;
     font-size: 2rem;
   }
-  .mode-selector, .controls, #confetti-canvas, .bingo-banner, .glitter-container {
+  .mode-selector, .controls, #confetti-canvas, .bingo-banner, .glitter-container, .egna-panel {
     display: none !important;
   }
   .card-wrapper {
@@ -351,7 +482,21 @@ body {
   <div class="mode-selector">
     <button id="btn-mode-mello" class="active">Mello</button>
     <button id="btn-mode-esc">Eurovision</button>
+    <button id="btn-mode-egna">Egna</button>
   </div>
+</div>
+
+<div class="egna-panel" id="egna-panel">
+  <div class="egna-groups">
+    <label><input type="checkbox" checked data-group="mello"> Mello</label>
+    <label><input type="checkbox" checked data-group="eurovision"> Eurovision</label>
+  </div>
+  <div class="egna-add">
+    <input type="text" id="egna-input" placeholder="Lägg till egen händelse...">
+    <button id="btn-egna-add">+</button>
+  </div>
+  <div class="egna-custom-list" id="egna-custom-list"></div>
+  <div class="egna-event-list" id="egna-event-list"></div>
 </div>
 
 <div class="controls">
@@ -375,7 +520,10 @@ const state = {
   mode: 'melodifestivalen',
   squares: [],    // [{text, marked}]
   hasBingo: false,
-  bingoLines: []  // indices of winning lines
+  bingoLines: [],  // indices of winning lines
+  egnaGroups: { mello: true, eurovision: true, common: true },
+  customEvents: [],
+  removedEvents: new Set()
 };
 
 // --- DOM ---
@@ -402,9 +550,18 @@ const ctx = canvasEl.getContext('2d');
 
 const btnMello = document.getElementById('btn-mode-mello');
 const btnEsc = document.getElementById('btn-mode-esc');
+const btnEgna = document.getElementById('btn-mode-egna');
+const egnaPanel = document.getElementById('egna-panel');
 
 // --- Mode ---
 function getFilteredPool() {
+  if (state.mode === 'egna') {
+    const builtIn = EVENT_POOL
+      .filter(e => state.egnaGroups[e.group])
+      .map(e => e.text)
+      .filter(t => !state.removedEvents.has(t));
+    return [...builtIn, ...state.customEvents];
+  }
   return EVENT_POOL.filter(e => !e.exclude || !e.exclude.includes(state.mode)).map(e => e.text);
 }
 
@@ -412,11 +569,15 @@ function setMode(mode) {
   state.mode = mode;
   btnMello.classList.toggle('active', mode === 'melodifestivalen');
   btnEsc.classList.toggle('active', mode === 'eurovision');
+  btnEgna.classList.toggle('active', mode === 'egna');
+  egnaPanel.classList.toggle('visible', mode === 'egna');
+  if (mode === 'egna') renderEgnaPanel();
   generateCard();
 }
 
 btnMello.addEventListener('click', () => setMode('melodifestivalen'));
 btnEsc.addEventListener('click', () => setMode('eurovision'));
+btnEgna.addEventListener('click', () => setMode('egna'));
 
 // --- Utility ---
 function shuffle(arr) {
@@ -673,6 +834,88 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 
 document.getElementById('btn-print').addEventListener('click', () => {
   window.print();
+});
+
+// --- Egna Panel ---
+function renderEgnaPanel() {
+  const customListEl = document.getElementById('egna-custom-list');
+  const eventListEl = document.getElementById('egna-event-list');
+
+  // Custom events
+  customListEl.innerHTML = '';
+  state.customEvents.forEach((text, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'egna-tag custom';
+    tag.innerHTML = `<span>${text}</span><button class="remove-btn" data-custom="${i}">\u00d7</button>`;
+    customListEl.appendChild(tag);
+  });
+
+  // Built-in events (from enabled groups)
+  eventListEl.innerHTML = '';
+  EVENT_POOL.forEach(e => {
+    if (!state.egnaGroups[e.group]) return;
+    const removed = state.removedEvents.has(e.text);
+    const tag = document.createElement('span');
+    tag.className = 'egna-tag builtin' + (removed ? ' removed' : '');
+    if (removed) {
+      tag.innerHTML = `<span>${e.text}</span><button class="remove-btn" data-restore="${e.text}">\u21a9</button>`;
+    } else {
+      tag.innerHTML = `<span>${e.text}</span><button class="remove-btn" data-remove="${e.text}">\u00d7</button>`;
+    }
+    eventListEl.appendChild(tag);
+  });
+}
+
+// Group checkboxes
+document.querySelectorAll('.egna-groups input[data-group]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    state.egnaGroups[cb.dataset.group] = cb.checked;
+    if (state.mode === 'egna') {
+      renderEgnaPanel();
+      generateCard();
+    }
+  });
+});
+
+// Add custom event
+function addCustomEvent() {
+  const input = document.getElementById('egna-input');
+  const text = input.value.trim();
+  if (!text) return;
+  state.customEvents.push(text);
+  input.value = '';
+  if (state.mode === 'egna') {
+    renderEgnaPanel();
+    generateCard();
+  }
+}
+
+document.getElementById('btn-egna-add').addEventListener('click', addCustomEvent);
+document.getElementById('egna-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addCustomEvent();
+});
+
+// Remove / restore events (delegated)
+document.getElementById('egna-custom-list').addEventListener('click', e => {
+  const btn = e.target.closest('[data-custom]');
+  if (!btn) return;
+  state.customEvents.splice(parseInt(btn.dataset.custom), 1);
+  renderEgnaPanel();
+  if (state.mode === 'egna') generateCard();
+});
+
+document.getElementById('egna-event-list').addEventListener('click', e => {
+  const removeBtn = e.target.closest('[data-remove]');
+  const restoreBtn = e.target.closest('[data-restore]');
+  if (removeBtn) {
+    state.removedEvents.add(removeBtn.dataset.remove);
+    renderEgnaPanel();
+    if (state.mode === 'egna') generateCard();
+  } else if (restoreBtn) {
+    state.removedEvents.delete(restoreBtn.dataset.restore);
+    renderEgnaPanel();
+    if (state.mode === 'egna') generateCard();
+  }
 });
 
 // --- Init ---

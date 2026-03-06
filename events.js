@@ -34,7 +34,7 @@ const EVENT_POOL = [
   { text: "Outfitbyte", group: "common" },
   { text: "Glitterkavaj", group: "common" },
   { text: "Artist flyger på scen", group: "common" },
-  { text: "Artist ekar mot kameran", group: "common" },
+  { text: "Artist pekar mot kameran", group: "common" },
   { text: "Dansare lyfter artisten", group: "common" },
   { text: "Artist stirrar i taket efter uppträdande", group: "common" },
   { text: "Rosa Kavaj", group: "common" },
